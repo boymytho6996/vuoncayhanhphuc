@@ -1,0 +1,280 @@
+/* style-history-popup.css */
+
+/* --- [MỚI] Kiểu Popup Modal --- */
+.history-popup {
+    display: none; /* Ẩn mặc định */
+    position: fixed; /* Định vị cố định trên màn hình */
+    z-index: 1001; /* Đảm bảo hiển thị trên các modal khác một chút (hoặc 1100 nếu cần) */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Cho phép cuộn nếu nội dung quá dài */
+    background-color: rgba(0, 0, 0, 0.6); /* Nền đen mờ */
+    animation: fadeIn 0.3s ease; /* Sử dụng animation fadeIn từ style chính */
+    backdrop-filter: blur(2px); /* Làm mờ nền phía sau nhẹ */
+}
+
+/* [MỚI] Điều chỉnh content bên trong popup */
+.history-popup-content {
+    background-color: #fff;
+    margin: 5% auto; /* Canh giữa và cách top */
+    padding: 25px 30px; /* Giữ padding gốc */
+    border: 1px solid #c8e6c9; /* Giữ viền gốc */
+    width: 90%; /* Chiếm 90% chiều rộng */
+    max-width: 580px; /* Tăng max-width nhẹ so với trang gốc */
+    border-radius: 12px; /* Giữ bo góc */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); /* Bóng đổ rõ hơn */
+    position: relative; /* Để nút đóng tuyệt đối hoạt động */
+    animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Animation slideIn */
+    display: flex; /* Sử dụng flexbox */
+    flex-direction: column; /* Các phần tử xếp dọc */
+    max-height: 85vh; /* Giới hạn chiều cao tối đa */
+}
+
+/* [MỚI] Phần thân popup chứa list, cho phép nó co giãn và cuộn */
+.history-popup-body {
+    flex-grow: 1; /* Cho phép phần body chiếm không gian còn lại */
+    overflow: hidden; /* Ngăn không cho list tràn ra ngoài body */
+    display: flex; /* Sử dụng flex để list bên trong cũng có thể co giãn */
+    flex-direction: column; /* List xếp dọc */
+}
+
+/* [MỚI] Đảm bảo list bên trong body cũng co giãn và cuộn */
+#history-popup-list {
+    flex-grow: 1; /* Cho phép list chiếm không gian trong body */
+    /* Các thuộc tính overflow-y, max-height, scrollbar đã có từ style gốc, không cần ghi đè trừ khi muốn thay đổi */
+     max-height: none; /* Bỏ max-height cũ để nó fill theo body */
+     /* border: 1px solid #e0e0e0; /* Bỏ viền riêng của list nếu không cần */
+     /* background-color: #fdfdfd; /* Bỏ nền riêng của list nếu không cần */
+     /* padding: 10px; /* Bỏ padding riêng của list nếu không cần */
+}
+
+/* [MỚI] Điều chỉnh nút đóng ('X') */
+.history-popup .close-button { /* Target nút đóng trong popup lịch sử */
+    position: absolute; /* Định vị tuyệt đối */
+    top: 10px;
+    right: 15px;
+    color: #aaa;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.history-popup .close-button:hover,
+.history-popup .close-button:focus {
+    color: #333;
+    transform: scale(1.1);
+}
+
+/* [MỚI] Đảm bảo các controls ở cuối */
+.history-popup-controls {
+    flex-shrink: 0; /* Không co lại */
+    padding-top: 15px;
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between; /* Giữ nguyên space-between */
+    flex-wrap: wrap;
+    gap: 10px;
+}
+/* Style lại các nút control bên trong popup nếu cần */
+.history-popup-controls button {
+     padding: 10px 18px;
+     font-size: 0.95rem;
+     border: none;
+     border-radius: 6px;
+     cursor: pointer;
+     transition: background-color 0.3s ease, transform 0.1s ease;
+     font-weight: 500;
+ }
+
+.history-popup-controls #clear-history-popup-button {
+     background-color: #dc3545; /* Đỏ */
+     color: white;
+ }
+.history-popup-controls #clear-history-popup-button:hover {
+     background-color: #c82333;
+     transform: scale(1.03);
+ }
+.history-popup-controls #close-history-popup-button {
+     background-color: #6c757d; /* Xám */
+     color: white;
+ }
+.history-popup-controls #close-history-popup-button:hover {
+     background-color: #5a6268;
+     transform: scale(1.03);
+ }
+
+
+/* --- Reset & Kiểu Cơ Bản (Giữ nguyên phần còn lại của style-history-menu.css) --- */
+/* ... (dán phần còn lại của style-history-menu.css vào đây) ... */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+}
+
+/* Bỏ body styling vì nó áp dụng cho trang, không phải popup */
+/*
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eef7ea;
+    color: #333;
+    line-height: 1.6;
+    padding: 15px;
+}
+*/
+
+/* --- Container Chính (Đã thay bằng .history-popup-content) --- */
+/*
+.history-container { ... }
+*/
+
+/* Điều chỉnh H1 nếu cần */
+.history-popup-content h1 {
+    text-align: center;
+    color: #2e8b57; /* SeaGreen */
+    margin-bottom: 20px; /* Giảm margin một chút */
+    font-size: 1.7rem; /* Giảm size nhẹ */
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+    padding-right: 30px; /* Tránh đè lên nút X */
+}
+
+/* --- Thanh Điều Khiển (Nút) (Đã chuyển vào .history-popup-controls) --- */
+/*
+.history-controls { ... }
+.history-controls button { ... }
+#back-button { ... }
+#clear-history-button { ... }
+*/
+
+
+/* --- Danh Sách Lịch Sử (Chỉnh sửa selector thành #history-popup-list) --- */
+#history-popup-list { /* Selector đã chỉnh ở trên */
+    list-style: none;
+    padding: 0;
+    /* max-height: 65vh; /* Đã bỏ ở trên để fill theo body */
+    overflow-y: auto; /* Giữ cuộn dọc */
+    /* border: 1px solid #e0e0e0; /* Đã bỏ ở trên */
+    /* background-color: #fdfdfd; /* Đã bỏ ở trên */
+    /* padding: 10px; /* Đã bỏ ở trên */
+    margin: 0 5px 0 0; /* Thêm margin phải để scrollbar không quá sát */
+
+    /* Tùy chỉnh thanh cuộn */
+    scrollbar-width: thin;
+    scrollbar-color: #a0a0a0 #f0f0f0;
+}
+/* Chrome/Edge/Safari */
+#history-popup-list::-webkit-scrollbar { width: 8px; }
+#history-popup-list::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 4px; }
+#history-popup-list::-webkit-scrollbar-thumb { background-color: #a0a0a0; border-radius: 4px; border: 2px solid #f0f0f0; }
+
+
+/* --- Mục Lịch Sử Đơn Lẻ (Giữ nguyên) --- */
+.history-entry {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    gap: 15px; /* Khoảng cách giữa các phần tử */
+    transition: background-color 0.2s ease;
+    flex-wrap: nowrap; /* Giữ các phần tử trên 1 dòng */
+}
+
+.history-entry:last-child {
+    border-bottom: none;
+}
+
+.history-entry:hover {
+    background-color: #f5f5f5;
+}
+
+/* --- Icon (Giữ nguyên) --- */
+.entry-icon {
+    font-size: 1.4rem; /* Kích thước icon lớn hơn */
+    min-width: 30px; /* Đảm bảo có không gian tối thiểu cho icon */
+    text-align: center;
+    line-height: 1;
+    flex-shrink: 0; /* Không co lại */
+}
+
+/* --- Thời Gian (Giữ nguyên) --- */
+.entry-time {
+    font-size: 0.8rem;
+    color: #666;
+    white-space: nowrap; /* Không ngắt dòng thời gian */
+    min-width: 100px; /* Đảm bảo đủ rộng cho ngày giờ */
+    text-align: right;
+    flex-shrink: 0; /* Không co lại */
+}
+
+/* --- Chi Tiết (Giữ nguyên) --- */
+.entry-details {
+    font-size: 0.95rem;
+    color: #333;
+    flex-grow: 1; /* Cho phép chi tiết chiếm hết không gian còn lại */
+    overflow: hidden; /* Ẩn phần thừa */
+    text-overflow: ellipsis; /* Hiển thị ... nếu quá dài */
+    /* white-space: nowrap; Ngăn không cho wrap nếu muốn ép vào 1 dòng */
+}
+
+
+/* --- Thông Báo Trống (Cập nhật selector và style nhẹ) --- */
+#history-popup-empty-message { /* Cập nhật ID */
+    text-align: center;
+    color: #888;
+    padding: 40px 20px;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    margin: 20px auto; /* Canh giữa */
+    flex-grow: 1; /* Cho phép chiếm không gian nếu list trống */
+    display: flex; /* Để căn giữa nội dung bên trong */
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+/* Ẩn mặc định, JS sẽ hiện */
+#history-popup-empty-message.hidden {
+    display: none;
+}
+
+/* --- Responsive (Cập nhật các selector và breakpoint nếu cần) --- */
+@media (max-width: 600px) {
+    .history-popup-content { padding: 20px 15px; margin: 10% auto; max-width: 95%; }
+    .history-popup-content h1 { font-size: 1.5rem; margin-bottom: 15px; padding-right: 25px; } /* Giảm size h1 mobile */
+
+    .history-popup-controls { padding-top: 10px; margin-top: 10px; } /* Giảm padding */
+    .history-popup-controls button { padding: 8px 12px; font-size: 0.9rem; }
+
+    .history-entry {
+        padding: 10px;
+        gap: 10px;
+        flex-wrap: wrap; /* Cho phép wrap trên mobile */
+    }
+    .entry-icon { font-size: 1.3rem; min-width: 25px; }
+    .entry-time {
+        font-size: 0.75rem;
+        min-width: unset; /* Bỏ min-width */
+        text-align: left; /* Căn trái */
+        width: 100%; /* Chiếm cả dòng dưới icon */
+        order: 3; /* Đẩy xuống dưới cùng */
+        margin-top: -5px; /* Kéo lên chút */
+        padding-left: 35px; /* Căn lề với details */
+        color: #888;
+    }
+    .entry-details {
+        font-size: 0.9rem;
+        order: 2; /* Đặt sau icon */
+        width: calc(100% - 35px); /* Chiếm phần còn lại bên cạnh icon */
+    }
+
+    #history-popup-empty-message { padding: 30px 15px; font-size: 1rem; }
+}

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Sử Hoạt Động - Vườn Cây Hạnh Phúc</title>
+    <link rel="stylesheet" href="style-history-menu.css"> <!-- Liên kết tới CSS -->
+</head>
+<body>
+
+    <div class="history-container">
+        <h1>📜 Lịch Sử Hoạt Động 📜</h1>
+
+        <div class="history-controls">
+            <button id="back-button">⬅️ Quay lại Vườn</button>
+            <button id="clear-history-button">🗑️ Xóa Lịch sử</button>
+        </div>
+
+        <ul id="history-list">
+            <!-- Các mục lịch sử sẽ được thêm vào đây bằng JavaScript -->
+        </ul>
+        <p id="empty-history-message" class="empty-message" style="display: none;">
+            Lịch sử hoạt động của bạn hiện đang trống. <br>
+            Hãy quay lại vườn và bắt đầu trồng trọt nhé!
+        </p>
+    </div>
+
+    <!-- [MỚI] Thẻ audio giống hệt bên Farm.html -->
+    <audio id="background-music" loop preload="auto">
+        <source src="nhacnen.mp3" type="audio/mpeg">
+        Trình duyệt của bạn không hỗ trợ phát âm thanh.
+    </audio>
+    <!-- Kết thúc thẻ Audio -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const historyList = document.getElementById('history-list');
+            const emptyMessage = document.getElementById('empty-history-message');
+            const backButton = document.getElementById('back-button');
+            const clearButton = document.getElementById('clear-history-button');
+            const backgroundMusicHistory = document.getElementById('background-music'); // [MỚI] Tham chiếu đến audio
+
+            // Khóa localStorage dùng chung với Farm.html
+            const HISTORY_SAVE_KEY = 'vuonCayHanhPhuc_v9.2_History';
+            // [MỚI] Khóa sessionStorage cho trạng thái nhạc
+            const MUSIC_SHOULD_PLAY_KEY = 'musicShouldPlay';
+            const MUSIC_CURRENT_TIME_KEY = 'musicCurrentTime';
+
+            // Hàm định dạng thời gian (giữ nguyên)
+            function formatTimestamp(timestamp) {
+                // ... (code định dạng thời gian như cũ) ...
+                 if (!timestamp) return 'Không rõ';
+                try {
+                    const options = {
+                         year: 'numeric', month: 'numeric', day: 'numeric',
+                         hour: '2-digit', minute: '2-digit', second: '2-digit',
+                         hour12: false
+                    };
+                   return new Intl.DateTimeFormat('vi-VN', options).format(new Date(timestamp));
+                } catch (e) {
+                     console.error("Lỗi định dạng timestamp:", timestamp, e);
+                     return new Date(timestamp).toLocaleString('vi-VN'); // Fallback
+                }
+            }
+
+            // Hàm hiển thị lịch sử (giữ nguyên)
+            function displayHistory() {
+                // ... (code hiển thị lịch sử như cũ) ...
+                historyList.innerHTML = '';
+                let historyData = [];
+                try {
+                    const rawData = localStorage.getItem(HISTORY_SAVE_KEY);
+                    if (rawData) {
+                        historyData = JSON.parse(rawData);
+                        if (!Array.isArray(historyData)) {
+                             console.warn("Dữ liệu lịch sử không phải mảng, đặt lại thành mảng rỗng.");
+                             historyData = [];
+                        }
+                    }
+                } catch (error) {
+                    console.error("Lỗi phân tích dữ liệu lịch sử từ localStorage:", error);
+                    historyData = [];
+                }
+
+                if (historyData.length === 0) {
+                    emptyMessage.style.display = 'block';
+                    historyList.style.display = 'none';
+                } else {
+                    emptyMessage.style.display = 'none';
+                    historyList.style.display = 'block';
+                    historyData.forEach(entry => {
+                        const listItem = document.createElement('li');
+                        listItem.classList.add('history-entry');
+                        listItem.classList.add(`type-${entry.type || 'unknown'}`);
+
+                        const iconSpan = document.createElement('span');
+                        iconSpan.classList.add('entry-icon');
+                        iconSpan.textContent = entry.icon || '❓';
+
+                        const timeSpan = document.createElement('span');
+                        timeSpan.classList.add('entry-time');
+                        timeSpan.textContent = formatTimestamp(entry.timestamp);
+
+                        const detailsSpan = document.createElement('span');
+                        detailsSpan.classList.add('entry-details');
+                        detailsSpan.textContent = entry.details || 'Không có chi tiết.';
+                        if (entry.plotId !== null && entry.plotId !== undefined) {
+                             detailsSpan.textContent += ` (Ô ${entry.plotId + 1})`;
+                        }
+
+                        listItem.appendChild(iconSpan);
+                        listItem.appendChild(timeSpan);
+                        listItem.appendChild(detailsSpan);
+
+                        historyList.appendChild(listItem);
+                    });
+                }
+            }
+
+            // --- [CẬP NHẬT] Gắn sự kiện cho nút Quay lại ---
+            if (backButton) {
+                backButton.addEventListener('click', () => {
+                    console.log("Chuẩn bị quay lại Vườn...");
+                    // --- [MỚI] Lưu trạng thái nhạc trước khi quay lại ---
+                    if (backgroundMusicHistory && !backgroundMusicHistory.paused) {
+                         try {
+                             sessionStorage.setItem(MUSIC_SHOULD_PLAY_KEY, 'true');
+                             sessionStorage.setItem(MUSIC_CURRENT_TIME_KEY, backgroundMusicHistory.currentTime.toString());
+                             console.log(`(History) Đã lưu trạng thái nhạc: currentTime=${backgroundMusicHistory.currentTime}`);
+                         } catch (e) {
+                             console.warn("(History) Không thể lưu trạng thái nhạc:", e);
+                             sessionStorage.removeItem(MUSIC_SHOULD_PLAY_KEY);
+                             sessionStorage.removeItem(MUSIC_CURRENT_TIME_KEY);
+                         }
+                    } else {
+                         // Nếu nhạc không phát, xóa cờ để Farm.html không tự bật nhạc
+                         sessionStorage.removeItem(MUSIC_SHOULD_PLAY_KEY);
+                         sessionStorage.removeItem(MUSIC_CURRENT_TIME_KEY);
+                         console.log("(History) Nhạc không phát, không lưu trạng thái.");
+                    }
+                    // -----------------------------------------------------
+                    window.location.href = 'Farm.html'; // Chuyển về trang Farm
+                });
+            } else { console.warn("Không tìm thấy nút #back-button"); }
+
+            // Gắn sự kiện cho nút Xóa Lịch sử (giữ nguyên)
+            if (clearButton) {
+                clearButton.addEventListener('click', () => {
+                    if (confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử hoạt động không? Hành động này không thể hoàn tác.')) {
+                        localStorage.removeItem(HISTORY_SAVE_KEY);
+                        displayHistory(); // Cập nhật lại giao diện
+                        alert('Lịch sử hoạt động đã được xóa.');
+                    }
+                });
+            } else { console.warn("Không tìm thấy nút #clear-history-button"); }
+
+            // --- [MỚI] Xử lý phát lại nhạc khi trang tải ---
+            function tryResumeMusic() {
+                if (backgroundMusicHistory) {
+                    try {
+                        const shouldPlay = sessionStorage.getItem(MUSIC_SHOULD_PLAY_KEY);
+                        const savedTimeStr = sessionStorage.getItem(MUSIC_CURRENT_TIME_KEY);
+
+                        if (shouldPlay === 'true') {
+                            console.log("Tìm thấy cờ musicShouldPlay. Thử phát lại nhạc...");
+                            const savedTime = parseFloat(savedTimeStr);
+
+                            if (!isNaN(savedTime) && savedTime >= 0) {
+                                // Rất quan trọng: Phải đợi sự kiện 'canplay' hoặc 'loadedmetadata'
+                                // để đảm bảo audio đã sẵn sàng nhận lệnh seek (thay đổi currentTime)
+                                // Tuy nhiên, để đơn giản, ta thử đặt ngay và dựa vào trình duyệt xử lý.
+                                // Một cách an toàn hơn là thêm listener 'canplay'.
+                                try {
+                                    backgroundMusicHistory.currentTime = savedTime;
+                                    console.log(`Đã đặt currentTime thành: ${savedTime}`);
+                                } catch (seekError) {
+                                    console.warn("Lỗi khi đặt currentTime (có thể audio chưa sẵn sàng):", seekError);
+                                    // Nếu lỗi, có thể nhạc sẽ bắt đầu từ đầu khi play() được gọi
+                                }
+                            } else {
+                                console.log("Thời gian lưu không hợp lệ, nhạc sẽ bắt đầu từ đầu.");
+                            }
+
+                            // Thử phát nhạc
+                            const playPromise = backgroundMusicHistory.play();
+
+                            if (playPromise !== undefined) {
+                                playPromise.then(_ => {
+                                    console.log("Nhạc nền đã tự động phát lại.");
+                                    // Xóa cờ sau khi phát thành công để tránh lặp lại khi refresh
+                                    sessionStorage.removeItem(MUSIC_SHOULD_PLAY_KEY);
+                                    sessionStorage.removeItem(MUSIC_CURRENT_TIME_KEY);
+                                })
+                                .catch(error => {
+                                    console.warn("Tự động phát lại nhạc nền thất bại (cần tương tác người dùng).", error);
+                                    // Không xóa cờ ở đây, có thể thử lại sau
+                                    // Cân nhắc thêm nút để người dùng bấm phát nhạc thủ công
+                                });
+                            } else {
+                                // Trình duyệt cũ không hỗ trợ promise, giả định là đã play (hoặc không thể biết)
+                                sessionStorage.removeItem(MUSIC_SHOULD_PLAY_KEY); // Xóa cờ
+                                sessionStorage.removeItem(MUSIC_CURRENT_TIME_KEY);
+                            }
+                        } else {
+                            console.log("Không có yêu cầu phát lại nhạc (không tìm thấy cờ hoặc giá trị sai).");
+                            // Dọn dẹp cờ nếu chúng tồn tại nhưng không hợp lệ
+                            sessionStorage.removeItem(MUSIC_SHOULD_PLAY_KEY);
+                            sessionStorage.removeItem(MUSIC_CURRENT_TIME_KEY);
+                        }
+                    } catch (e) {
+                        console.error("Lỗi khi xử lý trạng thái nhạc từ sessionStorage:", e);
+                        sessionStorage.removeItem(MUSIC_SHOULD_PLAY_KEY); // Dọn dẹp khi có lỗi
+                        sessionStorage.removeItem(MUSIC_CURRENT_TIME_KEY);
+                    }
+                } else {
+                    console.warn("Không tìm thấy thẻ audio#background-music trên trang lịch sử.");
+                    sessionStorage.removeItem(MUSIC_SHOULD_PLAY_KEY); // Dọn dẹp
+                    sessionStorage.removeItem(MUSIC_CURRENT_TIME_KEY);
+                }
+            }
+            // --- Kết thúc xử lý phát lại nhạc ---
+
+            // Hiển thị lịch sử khi trang tải xong
+            displayHistory();
+            // Thử phát lại nhạc sau khi hiển thị lịch sử
+            tryResumeMusic();
+
+        });
+    </script>
+
+</body>
+</html>
